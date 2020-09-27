@@ -8,7 +8,11 @@ function main() {
         ;;
 
     "docker-run")
-        docker run -d -p 8080:8080 le-garden-fox/healthchecker 
+        docker run --name healthchecker -d -p 8080:8080 le-garden-fox/healthchecker
+        ;;
+    "docker-stop")
+        docker stop healthchecker
+        docker rm healthchecker
         ;;
     "run")
         go run main.go
