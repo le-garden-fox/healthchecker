@@ -7,6 +7,7 @@ RUN  go get
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o healthchecker main.go
 
 #small image 
-FROM golang:1.14.9-alpine
-COPY --from=builder /go/src/github.com/le-garden-fox/healthchecker/healthchecker /go/bin/healthchecker
-ENTRYPOINT ["/go/bin/healthchecker"]
+FROM scratch
+COPY --from=builder /go/src/github.com/le-garden-fox/healthchecker/healthchecker .
+EXPOSE 8080
+ENTRYPOINT ["./healthchecker"]
