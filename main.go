@@ -7,18 +7,23 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", homeLink)
-	router.HandleFunc("/healthcheck-tcp/{host}/{port}", tcpHealthCheck)
-	log.Fatal(http.ListenAndServe(":8080", router))
+	headers := handlers.AllowedHeaders([]string{"X-Request-With", "Content-Type", "Authrization"})
+	methods := handlers.AllowedMethods([]string{"POST", "PUT", "GET", "DELETE", "OPTION"})
+	origins := handlers.AllowedOrigins([]string{"*"})
+
+	router.HandleFunc("/", rootLink).Methods("GET")
+	router.HandleFunc("/healthcheck-tcp/{host}/{port}", tcpHealthCheck).Methods("GET")
+	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(headers, methods, origins)(router)))
 }
 
-func homeLink(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome home!")
+func rootLink(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Alive"))
 }
 
 func tcpHealthCheck(w http.ResponseWriter, r *http.Request) {
